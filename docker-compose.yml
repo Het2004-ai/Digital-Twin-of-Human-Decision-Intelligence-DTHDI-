@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Database for behavioral streams
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: dthdi-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=dthdi_admin
+      - POSTGRES_PASSWORD=dthdi_secure_pass
+      - POSTGRES_DB=dthdi_core
+
+  # Real-time message broker
+  redis:
+    image: redis:alpine
+    container_name: dthdi-redis
+    ports:
+      - "6379:6379"
+
+  # Node.js API Gateway
+  api-gateway:
+    build: 
+      context: .
+      dockerfile: infrastructure/docker/gateway.Dockerfile
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - PORT=4000
+      - REDIS_URL=redis://redis:6379
+      - BEHAVIOR_ENGINE_URL=http://behavior-engine:8000
+
+  # Node.js Behavior Engine (AI)
+  behavior-engine:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/behavior.Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+networks:
+  default:
+    name: dthdi-network

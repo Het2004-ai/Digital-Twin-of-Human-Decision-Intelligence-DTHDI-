@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTHDI Sandbox - Behavioral Testbed</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hover-area { transition: all 0.3s ease; }
+        .hover-area:hover { transform: scale(1.02); background: #f3f4f6; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-8">
+    
+    <div class="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8 space-y-8">
+        <header class="text-center">
+            <h1 class="text-3xl font-bold text-gray-900">Behavioral Specimen #001</h1>
+            <p class="text-gray-500">The DTHDI Tracker is currently observing your micro-interactions.</p>
+        </header>
+
+        <div class="grid grid-cols-2 gap-4">
+            <button id="btn-buy" class="hover-area p-6 border-2 border-blue-500 rounded-xl text-blue-600 font-bold hover:bg-blue-50">
+                Simulate Purchase Intent
+            </button>
+            <button id="btn-abandon" class="hover-area p-6 border-2 border-red-500 rounded-xl text-red-600 font-bold hover:bg-red-50">
+                Simulate Exit Intent
+            </button>
+        </div>
+
+        <div class="space-y-4">
+            <label class="block text-sm font-medium text-gray-700">Type something to test rhythm analysis:</label>
+            <input type="text" id="typing-test" placeholder="Type fast, then slow..." 
+                   class="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <div class="h-64 overflow-y-scroll border rounded-xl p-4 space-y-4 bg-gray-100" id="scroll-test">
+            <p>Scroll through this content to test engagement depth...</p>
+            <div class="h-96 bg-gradient-to-b from-blue-100 to-purple-100 rounded-lg"></div>
+            <p class="text-center font-bold">You reached the bottom!</p>
+        </div>
+    </div>
+
+    <!-- Inject the Tracker SDK (Simulated) -->
+    <script type="module">
+        import { DTHDITracker } from '../../packages/tracker-sdk/src/index.ts';
+        
+        const tracker = new DTHDITracker('http://localhost:4000');
+        console.log("DTHDI Tracker Active");
+
+        // Step 8: Adaptive UI Listener
+        // In a real app, this would come from a WebSocket
+        const socket = {
+            on: (event, callback) => {
+                // Simulate receiving an intent prediction from the server
+                if (event === 'intent_update') {
+                    setTimeout(() => callback({ intent: 'BUY', confidence: 0.92 }), 5000);
+                }
+            }
+        };
+
+        socket.on('intent_update', (data) => {
+            console.log("Adaptive UI Triggered:", data);
+            if (data.intent === 'BUY') {
+                const btn = document.getElementById('btn-buy');
+                btn.classList.add('bg-blue-600', 'text-white', 'scale-110', 'animate-pulse');
+                btn.innerHTML = "Complete Your Purchase Now! (Predicted Intent)";
+            }
+        });
+    </script>
+</body>
+</html>

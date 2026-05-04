@@ -1,0 +1,16 @@
+{
+  "name": "dthdi-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:gateway": "npm run dev --workspace=services/api-gateway",
+    "dev:behavior": "npm run dev --workspace=services/behavior-engine",
+    "dev:simulation": "npm run dev --workspace=services/simulation-service",
+    "dev:dashboard": "npm run dev --workspace=apps/web-dashboard",
+    "build:sdk": "npm run build --workspace=packages/tracker-sdk"
+  }
+}
